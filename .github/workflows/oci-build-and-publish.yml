@@ -11,6 +11,7 @@ on:
 env:
   KANIKO_VERSION: v1.23.2-debug
   IMAGE_TAG: 0.0.1   # default, override if needed
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
 
 jobs:
   build-comfy:
@@ -24,11 +25,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - uses: docker/login-action@v3
-        with:
-          registry: ocr.jcan.dev/library
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Authenticate to registry
+        run: |
+          echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > /kaniko/.docker/config.json
 
       - name: Run Kaniko build (comfy)
         uses: int128/kaniko-action@v1
