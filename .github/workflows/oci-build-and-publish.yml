@@ -24,17 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Run Kaniko build (comfy)
+      - uses: docker/login-action@v1
         with:
-          image: gcr.io/kaniko-project/executor:${{ env.KANIKO_VERSION }}
-        run: |
-          echo "{\"auths\":{\"$REGISTRY_HOST\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-          find ${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}
-          echo ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
-          /kaniko/executor
-              --context "${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}"
-              --dockerfile "${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}/Dockerfile"
-              --destination ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
+          registry: ocr.jcan.dev/library
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Run Kaniko build (comfy)
+        uses: int128/kaniko-action@v1
+        with:
+          push: true
+          tags: ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
+          cache: true
+          cache-repository: ${{ steps.ecr.outputs.registry }}/${{ github.repository }}/cache
         env:
           OCI_REGISTRY: ocr.jcan.dev/library
           OCI_IMAGE_NAME: comfyui
