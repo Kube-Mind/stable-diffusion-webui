@@ -9,7 +9,6 @@ on:
   workflow_dispatch: {}
 
 env:
-  KANIKO_VERSION: v1.23.2-debug
   IMAGE_TAG: 0.0.1   # default, override if needed
 
 jobs:
@@ -19,7 +18,7 @@ jobs:
       group: homelab
       labels: ghar-scale-set
     container:
-      image: gcr.io/kaniko-project/executor:${KANIKO_VERSION}
+      image: gcr.io/kaniko-project/executor:v1.23.2-debug
     steps:
       - name: Checkout
         uses: actions/checkout@v4
