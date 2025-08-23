@@ -27,7 +27,7 @@ jobs:
 
       - name: Authenticate to registry
         run: |
-          echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > /kaniko/.docker/config.json
+          echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
 
       - name: Run Kaniko build (comfy)
         uses: int128/kaniko-action@v1
