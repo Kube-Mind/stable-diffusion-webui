@@ -1,0 +1,42 @@
+name: OCI Image Build
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+env:
+  KANIKO_VERSION: v1.23.2-debug
+  IMAGE_TAG: 0.0.1   # default, override if needed
+
+jobs:
+  build-comfy:
+    # The type of runner that the job will run on
+    runs-on:
+      group: homelab
+      labels: github-scale-set
+    container:
+      image: gcr.io/kaniko-project/executor:${KANIKO_VERSION}
+    needs: [build-download]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Kaniko build (comfy)
+        run: |
+          echo "{\"auths\":{\"$REGISTRY_HOST\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+          find ${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}
+          echo ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
+          /kaniko/executor
+              --context "${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}"
+              --dockerfile "${CI_PROJECT_DIR}/images/${OCI_IMAGE_NAME}/Dockerfile"
+              --destination ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
+        env:
+          OCI_REGISTRY: ocr.jcan.dev/library
+          OCI_IMAGE_NAME: comfyui
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          CI_PROJECT_NAME: ${{ github.repository }}

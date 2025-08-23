@@ -1,0 +1,9 @@
+[submodule "resources/comfyui"]
+	path = resources/comfyui
+	url = https://github.com/comfyanonymous/ComfyUI.git
+	branch = v0.3.49
+
+[submodule "resources/comfyui-manager"]
+	path = resources/comfyui-manager
+	url = https://github.com/Comfy-Org/ComfyUI-Manager
+	branch = 3.35
