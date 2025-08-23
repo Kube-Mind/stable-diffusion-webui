@@ -17,16 +17,17 @@ jobs:
     runs-on:
       group: homelab
       labels: ghar-scale-set
-    permissions:
-      contents: read
-      packages: write
     container:
       image: gcr.io/kaniko-project/executor:v1.23.2-debug
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
         with:
           submodules: true
+      - uses: docker/metadata-action@v3
+        id: metadata
+        with:
+          images: ghcr.io/${{ github.repository }}
 
       - name: Run Kaniko build (comfy)
         run: |
