@@ -27,6 +27,7 @@ jobs:
 
       - name: Authenticate to registry
         run: |
+          mkdir -p ~/.docker/
           echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
 
       - name: Run Kaniko build (comfy)
