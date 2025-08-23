@@ -17,7 +17,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on:
       group: homelab
-      labels: github-scale-set
+      labels: ghar-scale-set
     container:
       image: gcr.io/kaniko-project/executor:${KANIKO_VERSION}
     steps:
