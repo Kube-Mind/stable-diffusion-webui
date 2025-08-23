@@ -20,7 +20,6 @@ jobs:
       labels: github-scale-set
     container:
       image: gcr.io/kaniko-project/executor:${KANIKO_VERSION}
-    needs: [build-download]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
