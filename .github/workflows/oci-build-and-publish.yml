@@ -28,7 +28,7 @@ jobs:
         run: |
           curl 'https://wf.jcan.dev/wf/webhooks/buildkit' \
           -H 'Content-Type: application/json' \
-          -H 'Authorization: '${{ secrets.ARGOWF_BEARER_TOKEN }}' \
+          -H 'Authorization: ${{ secrets.ARGOWF_BEARER_TOKEN }} \
           -d '{
               "repo": ${{ github.repository }},
               "branch": "main",
