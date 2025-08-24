@@ -19,7 +19,7 @@ jobs:
       group: homelab
       labels: ghar-scale-set
     container:
-      image: ocr.jcan.dev/dh/ubuntu:jammy-20250714
+      image: ocr.jcan.dev/dh/alpine/curl:latest
     steps:
 
       # NOTE: unless rootless containers become compatible with GitHub-hosted runners,
