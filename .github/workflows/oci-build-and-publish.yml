@@ -20,7 +20,7 @@ jobs:
       group: homelab
       labels: ghar-scale-set
     container:
-      image: ocr.jcan.dev/dh/library/ubuntu:latest
+      image: moby/buildkit:v0.9.3-rootless
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -30,14 +30,16 @@ jobs:
           mkdir -p ~/.docker/
           echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
 
-      - name: Run Kaniko build (comfy)
-        uses: int128/kaniko-action@v1
-        with:
-          push: true
-          executor: gcr.io/kaniko-project/executor:v1.23.2-debug
-          tags: ${OCI_REGISTRY}/${CI_PROJECT_NAME}-${OCI_IMAGE_NAME}:${IMAGE_TAG}
-          cache: true
-          cache-repository: ${{ steps.ecr.outputs.registry }}/${{ github.repository }}/cache
+      - name: Run Buildah build (comfy)
+        run: |
+          buildctl-daemonless.sh \
+            build \
+            --frontend dockerfile.v0 \
+            --local context=. \
+            --local dockerfile=. \
+            --output type=image,name=ocr.jcan.dev/library/comfyui:${{ env.IMAGE_TAG }},push=true \
+            --export-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache,mode=max \
+            --import-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache
         env:
           OCI_REGISTRY: ocr.jcan.dev/library
           OCI_IMAGE_NAME: comfyui
