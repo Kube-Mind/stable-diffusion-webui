@@ -18,7 +18,6 @@ jobs:
     runs-on:
       group: homelab
       labels: ghar-scale-set
-    needs: clone-comfy
     container:
       image: ocr.jcan.dev/dh/ubuntu:jammy-20250714
     steps:
