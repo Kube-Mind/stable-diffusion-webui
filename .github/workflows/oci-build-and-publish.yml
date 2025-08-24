@@ -28,11 +28,8 @@ jobs:
           fetch-depth: 1
           submodules: true
       
-      - name: Upload source as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-code
-          path: .
+      - name: Confirm workspace
+        run: ls -lah /home/runner/_work . && ls -laR /__w/
 
   build-comfy:
     # The type of runner that the job will run on
@@ -43,11 +40,6 @@ jobs:
     container:
       image: moby/buildkit:v0.9.3-rootless
     steps:
-      - name: Download source from artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: source-code
-          path: .
 
       - name: Authenticate to registry
         run: |
