@@ -27,15 +27,28 @@ jobs:
         with:
           fetch-depth: 1
           submodules: true
+      
+      - name: Upload source as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-code
+          path: .
 
   build-comfy:
     # The type of runner that the job will run on
     runs-on:
       group: homelab
       labels: ghar-scale-set
+    needs: clone-comfy
     container:
       image: moby/buildkit:v0.9.3-rootless
     steps:
+      - name: Download source from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: source-code
+          path: .
+
       - name: Authenticate to registry
         run: |
           mkdir -p ~/.docker/
