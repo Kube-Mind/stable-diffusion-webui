@@ -9,30 +9,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  KANIKO_VERSION: v1.23.2-debug
   IMAGE_TAG: 0.0.1   # default, override if needed
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
 
 jobs:
-  clone-comfy:
-    # The type of runner that the job will run on
-    runs-on:
-      group: homelab
-      labels: ghar-scale-set
-    container:
-      image: alpine/git:latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: true
-      
-      - name: Confirm workspace
-        run: |
-          ls -lah /__w/ \
-          && pwd \
-          && mount
 
   build-comfy:
     # The type of runner that the job will run on
@@ -41,29 +20,25 @@ jobs:
       labels: ghar-scale-set
     needs: clone-comfy
     container:
-      image: moby/buildkit:v0.9.3-rootless
+      image: ocr.jcan.dev/dh/ubuntu:jammy-20250714
     steps:
 
-      - name: Authenticate to registry
+      # NOTE: unless rootless containers become compatible with GitHub-hosted runners,
+      #   stick with Argo Workflow delegation for now.
+      - name: Delegate build process to Argo Workflow
         run: |
-          mkdir -p ~/.docker/ \
-          && echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json \
-          && ls -lah ~/.docker/ \
-          && ls -la /__w/
-
-      - name: Run Buildah build (comfy)
-        run: |
-          buildctl-daemonless.sh \
-            build \
-            --frontend dockerfile.v0 \
-            --local context=. \
-            --local dockerfile=. \
-            --output type=image,name=ocr.jcan.dev/library/comfyui:${{ env.IMAGE_TAG }},push=true \
-            --export-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache,mode=max \
-            --import-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache
+          curl 'https://wf.jcan.dev/wf/webhooks/buildkit' \
+          -H 'Content-Type: application/json' \
+          -H 'Authorization: '${{ secrets.ARGOWF_BEARER_TOKEN }}' \
+          -d '{
+              "repo": ${{ github.repository }},
+              "branch": "main",
+              "dockerfile": "images/${{ env.OCI_IMAGE_NAME }}",
+              "image": "ocr.jcan.dev/library/sdwui-${{ env.OCI_IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
+              "context": "./"
+            }'
+      
         env:
           OCI_REGISTRY: ocr.jcan.dev/library
           OCI_IMAGE_NAME: comfyui
-          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           CI_PROJECT_NAME: ${{ github.repository }}
