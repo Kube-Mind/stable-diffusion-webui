@@ -29,7 +29,10 @@ jobs:
           submodules: true
       
       - name: Confirm workspace
-        run: ls -lah /home/runner/_work . && ls -laR /__w/
+        run: |
+          ls -laR /__w/
+          pwd
+          mount
 
   build-comfy:
     # The type of runner that the job will run on
