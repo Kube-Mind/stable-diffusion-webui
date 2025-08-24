@@ -19,30 +19,32 @@ jobs:
     runs-on:
       group: homelab
       labels: ghar-scale-set
-    container:
-      image: moby/buildkit:v0.9.3-rootless
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: docker://ubuntu:latest
         with:
-          fetch-depth: 1
-          submodules: true
+          args: |
+            bash -c "apt-get update && apt-get install -y git && git clone --depth 1 --branch main
 
       - name: Authenticate to registry
-        run: |
-          mkdir -p ~/.docker/
-          echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
+        uses: docker://moby/buildkit:v0.9.3-rootless
+        with:
+          args: |
+            mkdir -p ~/.docker/
+            echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
 
       - name: Run Buildah build (comfy)
-        run: |
-          buildctl-daemonless.sh \
-            build \
-            --frontend dockerfile.v0 \
-            --local context=. \
-            --local dockerfile=. \
-            --output type=image,name=ocr.jcan.dev/library/comfyui:${{ env.IMAGE_TAG }},push=true \
-            --export-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache,mode=max \
-            --import-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache
+        uses: docker://moby/buildkit:v0.9.3-rootless
+        with:
+          args: |
+            buildctl-daemonless.sh \
+              build \
+              --frontend dockerfile.v0 \
+              --local context=. \
+              --local dockerfile=. \
+              --output type=image,name=ocr.jcan.dev/library/comfyui:${{ env.IMAGE_TAG }},push=true \
+              --export-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache,mode=max \
+              --import-cache type=registry,ref=ocr.jcan.dev/library/comfyui:cache
         env:
           OCI_REGISTRY: ocr.jcan.dev/library
           OCI_IMAGE_NAME: comfyui
