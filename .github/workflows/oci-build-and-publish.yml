@@ -30,9 +30,9 @@ jobs:
       
       - name: Confirm workspace
         run: |
-          ls -laR /__w/
-          pwd
-          mount
+          ls -lah /__w/ \
+          && pwd \
+          && mount
 
   build-comfy:
     # The type of runner that the job will run on
@@ -46,8 +46,10 @@ jobs:
 
       - name: Authenticate to registry
         run: |
-          mkdir -p ~/.docker/
-          echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json
+          mkdir -p ~/.docker/ \
+          && echo "{\"auths\":{\"ocr.jcan.dev\":{\"username\":\"${{ secrets.REGISTRY_USER }}\",\"password\":\"${{ secrets.REGISTRY_PASSWORD }}\"}}}" > ~/.docker/config.json \
+          && ls -lah ~/.docker/ \
+          && ls -la /__w/
 
       - name: Run Buildah build (comfy)
         run: |
