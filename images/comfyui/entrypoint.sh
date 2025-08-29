@@ -2,13 +2,12 @@
 
 set -Eeuo pipefail
 
-mkdir -vp /data/config/comfy/custom_nodes
+# test for pythorch
+python /docker/images/comfyui/torch-test.py
 
 declare -A MOUNTS
 
-MOUNTS["${USER_HOME}/.cache"]="/data/.cache"
-MOUNTS["${ROOT}/input"]="/data/config/comfy/input"
-MOUNTS["${ROOT}/output"]="/output/comfy"
+MOUNTS["${USER_HOME}/.cache"]="${ROOT}/comfyui/models/.cache"
 
 for to_path in "${!MOUNTS[@]}"; do
   set -Eeuo pipefail
@@ -22,11 +21,8 @@ for to_path in "${!MOUNTS[@]}"; do
   echo Mounted $(basename "${from_path}")
 done
 
-if [ -f "/data/config/comfy/startup.sh" ]; then
-  pushd ${ROOT}
-  . /data/config/comfy/startup.sh
-  popd
-fi
+# Call synchronise_paths.sh to restore missing mounted subfolders
+/docker/images/comfyui/synchronise_paths.sh /docker/resources/comfyui ${ROOT}/comfyui
 
 # Only chown if not running as root (UID != 0)
 if [ "$(id -u)" -ne 0 ]; then

@@ -58,10 +58,9 @@ RUN cp -Rfp /docker/resources/comfyui-manager ${ROOT}/custom_nodes/comfyui-manag
 
 RUN chown -R "$PUID:$PGID" "${ROOT}"
 WORKDIR ${ROOT}
-RUN chmod u+x /docker/images/comfyui/entrypoint.sh && cp /docker/images/comfyui/extra_model_paths.yaml ${ROOT}
+RUN chmod u+x /docker/images/comfyui/entrypoint.sh /docker/images/comfyui/synchronise_paths.sh
 
 ENV NVIDIA_VISIBLE_DEVICES=all CLI_ARGS="" PORT=7860 HOST=0.0.0.0
 EXPOSE ${PORT}
 ENTRYPOINT ["/docker/images/comfyui/entrypoint.sh"]
-#CMD python -u main.py --listen --port 7860 ${CLI_ARGS}
 CMD ["sh", "-c", "python3 -c 'import os; print(f\"Running as UID={os.getuid()}, GID={os.getgid()}\")' && python -u main.py --listen ${HOST} --port ${PORT} ${CLI_ARGS}"]

@@ -51,16 +51,23 @@ spec:
       serviceAccountName: {{ include "sd-comfyui.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      initContainers: []
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CLI_ARGS
+              value: "{{ .Values.comfyui.cli_args }}"
+            - name: PORT
+              value: "{{ .Values.comfyui.port }}"
+            {{- with .Values.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.comfyui.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -72,12 +79,8 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          volumeMounts:
-            - name: sd-models
-              path: /stable-diffusion/comfyui/models
-            - name: sd-output
-              path: /stable-diffusion/comfyui/output
           {{- with .Values.volumeMounts }}
+          volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.volumes }}
@@ -97,33 +100,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
   volumeClaimTemplates:
+  {{- range .Values.volumeClaimTemplates }}
     - metadata:
-        {{- with .Values.volumeClaimTemplates.models.annotations }}
+        {{- with .metadata.annotations }}
         annotations:
-          {{- toYaml . | nindent 10 }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
         labels:
-          {{- include "sd-comfyui.selectorLabels" . | nindent 10 }}
-        name: sd-models
+          {{- include "sd-comfyui.selectorLabels" $ | nindent 10 }}
+        name: {{ .name }}
       spec:
         accessModes:
           - ReadWriteMany
         resources:
           requests:
-            storage: {{ .Values.volumeClaimTemplates.models.storageSize }}
-        storageClassName: {{ .Values.volumeClaimTemplates.models.storageClass }}
-    - metadata:
-        {{- with .Values.volumeClaimTemplates.output.annotations }}
-        annotations:
-          {{- toYaml . | nindent 10 }}
-        {{- end }}
-        labels:
-          {{- include "sd-comfyui.selectorLabels" . | nindent 10 }}
-        name: sd-data
-      spec:
-        accessModes:
-          - ReadWriteMany
-        resources:
-          requests:
-            storage: {{ .Values.volumeClaimTemplates.data.storageSize }}
-        storageClassName: {{ .Values.volumeClaimTemplates.models.storageClass }}
+            storage: {{ .storageSize }}
+  {{- end }}
