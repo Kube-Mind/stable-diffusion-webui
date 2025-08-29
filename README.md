@@ -4,8 +4,9 @@ TBA
 
 ## TODO
 
-- [ ] add ci image builder
-- [ ] initialise helm chart
+- [x] add ci image builder
+- [x] initialise helm chart
+- [ ] add path synchroniser from comfyui submodule to mount override
 - [ ] add renovate bot dependency watcher
 - [ ] add workflow tests
 - [ ] add Django wrapper for comfyui

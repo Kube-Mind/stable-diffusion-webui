@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "sd-comfyui.fullname" . }}
+  labels:
+    {{- include "sd-comfyui.labels" . | nindent 4 }}
+spec:
+  # The StatefulSet’s serviceName must point at the headless Service that
+  # provides stable DNS for each pod.  If you already create such a Service,
+  # replace the value below with its name.
+  serviceName: "{{ include "sd-comfyui.fullname" . }}-headless"
+
+  # Keep the same replica count logic as the original Deployment.
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  # OrderedReady gives each pod its own network identity before the next
+  # pod is started (the default for Deployments).  Change this if you need a
+  # different policy.
+  podManagementPolicy: OrderedReady
+
+  selector:
+    matchLabels:
+      {{- include "sd-comfyui.selectorLabels" . | nindent 6 }}
+
+  # StatefulSet’s rolling update strategy is analogous to the Deployment
+  # strategy.  Here we keep the default “RollingUpdate” with a partition of 0
+  # (i.e., no pause).
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "sd-comfyui.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "sd-comfyui.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: []
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: sd-models
+              path: /stable-diffusion/comfyui/models
+            - name: sd-output
+              path: /stable-diffusion/comfyui/output
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        {{- with .Values.volumeClaimTemplates.models.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        labels:
+          {{- include "sd-comfyui.selectorLabels" . | nindent 10 }}
+        name: sd-models
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: {{ .Values.volumeClaimTemplates.models.storageSize }}
+        storageClassName: {{ .Values.volumeClaimTemplates.models.storageClass }}
+    - metadata:
+        {{- with .Values.volumeClaimTemplates.output.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        labels:
+          {{- include "sd-comfyui.selectorLabels" . | nindent 10 }}
+        name: sd-data
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: {{ .Values.volumeClaimTemplates.data.storageSize }}
+        storageClassName: {{ .Values.volumeClaimTemplates.models.storageClass }}
