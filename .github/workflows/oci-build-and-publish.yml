@@ -34,7 +34,7 @@ jobs:
           -H 'Content-Type: application/json' \
           -H 'Authorization: ${{ secrets.ARGOWF_BEARER_TOKEN }}' \
           -d '{
-              "repo": ${{ github.repository }},
+              "repo": "${{ github.repository }}",
               "branch": "main",
               "dockerfile": "images/${{ env.OCI_IMAGE_NAME }}",
               "image": "ocr.jcan.dev/library/sd-${{ env.OCI_IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
