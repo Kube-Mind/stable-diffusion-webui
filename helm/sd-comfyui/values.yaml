@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ocr.jcan.dev/library/sdwui-comfyui
+  repository: ocr.jcan.dev/library/sd-comfyui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

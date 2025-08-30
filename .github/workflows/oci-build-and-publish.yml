@@ -5,6 +5,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
+      - ".github/workflows/oci-build-and-publish.yml"
       - "images/**"
       - "resources/**"
   pull_request:
@@ -36,7 +37,7 @@ jobs:
               "repo": ${{ github.repository }},
               "branch": "main",
               "dockerfile": "images/${{ env.OCI_IMAGE_NAME }}",
-              "image": "ocr.jcan.dev/library/sdwui-${{ env.OCI_IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
+              "image": "ocr.jcan.dev/library/sd-${{ env.OCI_IMAGE_NAME }}:${{ env.IMAGE_TAG }}",
               "context": "./"
             }'
       
