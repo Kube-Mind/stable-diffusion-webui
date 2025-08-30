@@ -21,6 +21,9 @@ comfyui:
   # ex. "--cuda-device 0 --verbose DEBUG --fast"
   cli_args: ""
 
+# Specify a runtime class to use for the pods.
+runtimeClassName: "nvidia"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
