@@ -111,7 +111,7 @@ spec:
         {{- end }}
         labels:
           {{- include "sd-comfyui.selectorLabels" $ | nindent 10 }}
-        name: {{ .name }}
+        name: {{ .metadata.name }}
       spec:
         accessModes:
           - ReadWriteMany
