@@ -118,4 +118,13 @@ spec:
         resources:
           requests:
             storage: {{ .storageSize }}
+        {{- with .storageClassName }}
+        storageClassName: {{ . }}
+        {{- end }}
+        {{- if eq .storageClassName "local-storage" }}
+        volumeName: {{ .volumeName }}
+        {{- end }}
+        {{- with .volumeMode }}
+        volumeMode: {{ . }}
+        {{- end }}
   {{- end }}
