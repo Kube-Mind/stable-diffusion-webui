@@ -45,22 +45,21 @@ USER $PUID:$PGID
 
 # Set reference directory
 ENV ROOT=/stable-diffusion
-COPY --chown=$PUID:$PGID . /docker
+COPY --chown=$PUID:$PGID . ${ROOT}
 
-# Install comfyui and its dependencies
+# Install comfyui dependencies
 RUN --mount=type=cache,target="$USER_HOME"/.cache/pip \
-  cp -Rfp /docker/resources/comfyui ${ROOT} \
-  && pip install -r ${ROOT}/requirements.txt
+  pip install -r ${ROOT}/resources/comfyui/requirements.txt
 
 # Install comfyui-manager and its dependencies
-RUN cp -Rfp /docker/resources/comfyui-manager ${ROOT}/custom_nodes/comfyui-manager \
-    && pip install -r ${ROOT}/custom_nodes/comfyui-manager/requirements.txt
+RUN mv ${ROOT}/resources/comfyui-manager ${ROOT}/resources/comfyui/custom_nodes/comfyui-manager \
+    && pip install -r ${ROOT}/resources/comfyui/custom_nodes/comfyui-manager/requirements.txt
 
 RUN chown -R "$PUID:$PGID" "${ROOT}"
-WORKDIR ${ROOT}
-RUN chmod u+x /docker/images/comfyui/entrypoint.sh /docker/images/comfyui/synchronise_paths.sh
+WORKDIR ${ROOT}/resources/comfyui
+RUN chmod u+x ${ROOT}/images/comfyui/entrypoint.sh ${ROOT}/images/comfyui/synchronise_paths.sh
 
 ENV NVIDIA_VISIBLE_DEVICES=all CLI_ARGS="" PORT=7860 HOST=0.0.0.0
 EXPOSE ${PORT}
-ENTRYPOINT ["/docker/images/comfyui/entrypoint.sh"]
+ENTRYPOINT ["/stable-diffusion/images/comfyui/entrypoint.sh"]
 CMD ["sh", "-c", "python3 -c 'import os; print(f\"Running as UID={os.getuid()}, GID={os.getgid()}\")' && python -u main.py --listen ${HOST} --port ${PORT} ${CLI_ARGS}"]

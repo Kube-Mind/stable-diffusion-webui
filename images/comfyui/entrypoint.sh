@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 # test for pythorch
-python /docker/images/comfyui/torch-test.py
+python /stable-diffusion/images/comfyui/torch-test.py
 
 declare -A MOUNTS
 
@@ -22,7 +22,7 @@ for to_path in "${!MOUNTS[@]}"; do
 done
 
 # Call synchronise_paths.sh to restore missing mounted subfolders
-/docker/images/comfyui/synchronise_paths.sh /docker/resources/comfyui ${ROOT}/comfyui
+/stable-diffusion/images/comfyui/synchronise_paths.sh /stable-diffusion/resources/comfyui
 
 # Only chown if not running as root (UID != 0)
 if [ "$(id -u)" -ne 0 ]; then
