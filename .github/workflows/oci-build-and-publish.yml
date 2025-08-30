@@ -25,11 +25,16 @@ jobs:
     container:
       image: ocr.jcan.dev/dh/alpine/curl:latest
     steps:
+      - name: Checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Extract ComfyUI submodule branch as OCI_IMAGE_TAG
         id: get_tag
         run: |
-          # Extract the branch from .gitmodules (e.g. "v0.3.54")
-          TAG=$(grep -A2 'resources/comfyui"' .gitmodules | grep branch | awk -F'= ' '{print $2}')
+          # Extract the branch from .gitmodules
+          TAG=$(grep -A3 'resources/comfyui"' .gitmodules | grep branch | awk -F'= ' '{print $2}')
           echo "OCI_IMAGE_TAG=$TAG" >> $GITHUB_ENV
           echo "Using OCI_IMAGE_TAG=$TAG"
 
