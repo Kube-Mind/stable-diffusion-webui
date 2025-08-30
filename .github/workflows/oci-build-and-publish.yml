@@ -13,7 +13,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  IMAGE_TAG: v0.3.54   # default, override if needed
+  OCI_REGISTRY: ocr.jcan.dev/library
+  OCI_IMAGE_NAME: comfyui
+  OCI_IMAGE_TAG: v0.3.54   # default, override if needed
 
 jobs:
 
@@ -25,19 +27,6 @@ jobs:
     container:
       image: ocr.jcan.dev/dh/alpine/curl:latest
     steps:
-      - name: Checkout repo with submodules
-        uses: actions/checkout@v5
-        with:
-          submodules: true
-
-      - name: Extract ComfyUI submodule branch as OCI_IMAGE_TAG
-        id: get_tag
-        run: |
-          # Extract the branch from .gitmodules
-          TAG=$(grep -A3 'resources/comfyui"' .gitmodules | grep branch | awk -F'= ' '{print $2}')
-          echo "OCI_IMAGE_TAG=$TAG" >> $GITHUB_ENV
-          echo "Using OCI_IMAGE_TAG=$TAG"
-
       # NOTE: unless rootless containers become compatible with GitHub-hosted runners,
       #   stick with Argo Workflow delegation for now.
       - name: Delegate build process to Argo Workflow
@@ -52,8 +41,3 @@ jobs:
               "image": "ocr.jcan.dev/library/sd-${{ env.OCI_IMAGE_NAME }}:${{ env.OCI_IMAGE_TAG }}",
               "context": "./"
             }'
-      
-        env:
-          OCI_REGISTRY: ocr.jcan.dev/library
-          OCI_IMAGE_NAME: comfyui
-          CI_PROJECT_NAME: ${{ github.repository }}
