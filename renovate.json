@@ -2,5 +2,31 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "dependencyDashboard": true,
+  "labels": [
+    "dependencies"
+  ],
+  "helm-values": {
+    "managerFilePatterns": ["**/values.yaml"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "helm-values",
+        "regex"
+      ],
+      "groupName": "chore(deps): update stable-diffusion artefacts"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [".gitmodules"],
+      "matchStrings": [
+        "url\\s*=\\s*(?<depName>.+)\\.git"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
   ]
 }
