@@ -36,4 +36,4 @@ jobs:
         run: |
           # Trigger ArgoWF delegation script
           chmod u+x tools/scripts/trigger-build.sh
-          ./tools/scripts/trigger-build.sh
+          ./tools/scripts/trigger-build.sh ${{ secrets.ARGOWF_BEARER_TOKEN }}
