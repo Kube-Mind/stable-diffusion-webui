@@ -1,43 +1,6 @@
 name: OCI Image Build
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-    paths:
-      - ".github/workflows/oci-build-and-publish.yml"
-      - "images/**"
-      - "resources/**"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - ".github/workflows/oci-build-and-publish.yml"
-      - "images/**"
-      - "resources/**"
-  workflow_dispatch: {}
-
-env:
-  OCI_REGISTRY: ocr.jcan.dev/library
-  OCI_IMAGE_NAME: comfyui
-  OCI_IMAGE_TAG: v0.3.54   # default, override if needed
-
-jobs:
-
-  build-comfy:
-    # The type of runner that the job will run on
-    runs-on:
-      group: homelab
-      labels: ghar-scale-set
-    container:
-      image: ocr.jcan.dev/dh/alpine/curl:latest
-    steps:
-      # NOTE: unless rootless containers become compatible with GitHub-hosted runners,
-      #   stick with Argo Workflow delegation for now.
-      - name: Delegate build process to Argo Workflow
-        run: |
-          name: OCI Image Build
-
-on:
   push:
     branches: [ "main" ]
     paths:
