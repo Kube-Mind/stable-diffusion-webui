@@ -13,7 +13,7 @@
   "packageRules": [
     {
       "matchManagers": [
-        "helm-values",
+        "dockerfile",
         "regex"
       ],
       "groupName": "chore(deps): update stable-diffusion artefacts"
