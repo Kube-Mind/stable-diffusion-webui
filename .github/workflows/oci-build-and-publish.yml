@@ -30,7 +30,7 @@ jobs:
       image: ghcr.io/actions/actions-runner:2.328.0
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Delegate build process to Argo Workflow
         run: |
