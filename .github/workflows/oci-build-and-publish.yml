@@ -10,6 +10,10 @@ on:
       - "resources/**"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - ".github/workflows/oci-build-and-publish.yml"
+      - "images/**"
+      - "resources/**"
   workflow_dispatch: {}
 
 env:
@@ -31,13 +35,57 @@ jobs:
       #   stick with Argo Workflow delegation for now.
       - name: Delegate build process to Argo Workflow
         run: |
+          name: OCI Image Build
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/oci-build-and-publish.yml"
+      - "images/**"
+      - "resources/**"
+      - "submodules.json"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/oci-build-and-publish.yml"
+      - "images/**"
+      - "resources/**"
+      - "submodules.json"
+  workflow_dispatch: {}
+
+env:
+  OCI_REGISTRY: ocr.jcan.dev/library
+  OCI_IMAGE_NAME: comfyui   # maps to "comfyui" key in submodules.json
+
+jobs:
+  build-comfy:
+    runs-on:
+      group: homelab
+      labels: ghar-scale-set
+    container:
+      image: ocr.jcan.dev/dh/alpine/curl:latest
+    steps:
+      - name: Delegate build process to Argo Workflow
+        run: |
+          set -euo pipefail
+
+          # Install yq for JSON parsing
+          apk add --no-cache yq jq
+
+          # Extract OCI image tag from submodules.json
+          OCI_IMAGE_TAG=$(jq -r ".${OCI_IMAGE_NAME}.tag" submodules.json)
+
+          echo "Using tag: $OCI_IMAGE_TAG"
+
+          # Trigger Argo Workflow build
           curl 'https://wf.jcan.dev/wf/webhooks/buildkit' \
-          -H 'Content-Type: application/json' \
-          -H 'Authorization: ${{ secrets.ARGOWF_BEARER_TOKEN }}' \
-          -d '{
-              "repo": "${{ github.server_url }}/${{ github.repository }}.git",
-              "branch": "main",
-              "dockerfile": "images/${{ env.OCI_IMAGE_NAME }}",
-              "image": "ocr.jcan.dev/library/sd-${{ env.OCI_IMAGE_NAME }}:${{ env.OCI_IMAGE_TAG }}",
-              "context": "./"
-            }'
+            -H 'Content-Type: application/json' \
+            -H "Authorization: ${{ secrets.ARGOWF_BEARER_TOKEN }}" \
+            -d "{
+                \"repo\": \"${{ github.server_url }}/${{ github.repository }}.git\",
+                \"branch\": \"main\",
+                \"dockerfile\": \"images/${{ env.OCI_IMAGE_NAME }}\",
+                \"image\": \"${{ env.OCI_REGISTRY }}/sd-${{ env.OCI_IMAGE_NAME }}:${OCI_IMAGE_TAG}\",
+                \"context\": \"./\"
+              }"
