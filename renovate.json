@@ -22,10 +22,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [".gitmodules"],
+      "managerFilePatterns": ["submodules.json"],
       "matchStrings": [
-        "url\\s*=\\s*(?<depName>.+)\\.git"
+        "\"comfyui\"\\s*:\\s*\\{[^}]*?\"tag\"\\s*:\\s*\"(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)\""
       ],
+      "depNameTemplate": "comfyanonymous/ComfyUI",
       "datasourceTemplate": "github-tags"
     }
   ]

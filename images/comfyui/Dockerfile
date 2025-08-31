@@ -2,7 +2,10 @@ FROM ocr.jcan.dev/dh/pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive PIP_PREFER_BINARY=1
 
-RUN apt-get update && apt-get install -y git libgoogle-perftools-dev && apt-get clean
+RUN apt-get update && apt-get install -y \
+  git libgoogle-perftools-dev libgl1-mesa-glx libglib2.0-0 \
+  jq \
+  && apt-get clean
 
 ARG PUID=0
 ARG PGID=0
@@ -46,6 +49,10 @@ USER $PUID:$PGID
 # Set reference directory
 ENV ROOT=/stable-diffusion
 COPY --chown=$PUID:$PGID . ${ROOT}
+
+# Ensure submodules have the correct tag
+RUN chmod u+x ${ROOT}/tools/scripts/update-submodules.sh \
+  && ${ROOT}/tools/scripts/update-submodules.sh
 
 # Install comfyui dependencies
 RUN --mount=type=cache,target="$USER_HOME"/.cache/pip \

@@ -1,0 +1,10 @@
+{
+  "comfyui": {
+    "url": "https://github.com/comfyanonymous/ComfyUI.git",
+    "tag": "v0.3.54"
+  },
+  "comfyui-manager": {
+    "url": "https://github.com/Comfy-Org/ComfyUI-Manager.git",
+    "tag": "3.35"
+  }
+}
