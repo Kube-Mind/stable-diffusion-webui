@@ -34,19 +34,6 @@ jobs:
 
       - name: Delegate build process to Argo Workflow
         run: |
-          # Extract OCI image tag from submodules.json
-          OCI_IMAGE_TAG=$(jq -r ".${OCI_IMAGE_NAME}.tag" submodules.json)
-
-          echo "Using tag: $OCI_IMAGE_TAG"
-
-          # Trigger Argo Workflow build
-          curl 'https://wf.jcan.dev/wf/webhooks/buildkit' \
-            -H 'Content-Type: application/json' \
-            -H "Authorization: ${{ secrets.ARGOWF_BEARER_TOKEN }}" \
-            -d "{
-                \"repo\": \"${{ github.server_url }}/${{ github.repository }}.git\",
-                \"branch\": \"main\",
-                \"dockerfile\": \"images/${{ env.OCI_IMAGE_NAME }}\",
-                \"image\": \"${{ env.OCI_REGISTRY }}/sd-${{ env.OCI_IMAGE_NAME }}:${OCI_IMAGE_TAG}\",
-                \"context\": \"./\"
-              }"
+          # Trigger ArgoWF delegation script
+          chmod u+x tools/scripts/trigger-build.sh
+          ./tools/scripts/trigger-build.sh
