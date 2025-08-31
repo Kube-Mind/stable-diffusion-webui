@@ -34,8 +34,6 @@ jobs:
 
       - name: Delegate build process to Argo Workflow
         run: |
-          set -euo pipefail
-
           # Extract OCI image tag from submodules.json
           OCI_IMAGE_TAG=$(jq -r ".${OCI_IMAGE_NAME}.tag" submodules.json)
 
