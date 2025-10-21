@@ -8,13 +8,15 @@
     "dependencies"
   ],
   "helm-values": {
-    "managerFilePatterns": ["**/values.yaml"]
+    "managerFilePatterns": [
+      "**/values.yaml"
+    ]
   },
   "packageRules": [
     {
       "matchManagers": [
         "dockerfile",
-        "regex"
+        "custom.regex"
       ],
       "groupName": "chore(deps): update stable-diffusion artefacts"
     }
@@ -22,7 +24,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["submodules.json"],
+      "managerFilePatterns": [
+        "submodules.json"
+      ],
       "matchStrings": [
         "\"comfyui\"\\s*:\\s*\\{[^}]*?\"tag\"\\s*:\\s*\"(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)\""
       ],
