@@ -27,7 +27,7 @@ jobs:
       group: homelab
       labels: ghar-scale-set
     container:
-      image: ghcr.io/actions/actions-runner:2.330.0
+      image: ghcr.io/actions/actions-runner:2.331.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
