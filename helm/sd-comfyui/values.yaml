@@ -8,7 +8,7 @@ image:
   repository: ocr.jcan.dev/library/sd-comfyui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.7.0"
+  tag: "v0.9.2"
 
 imagePullSecrets: []
 nameOverride: ""
