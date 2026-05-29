@@ -5,10 +5,7 @@ metadata:
   labels:
     {{- include "sd-comfyui.labels" . | nindent 4 }}
 spec:
-  # The StatefulSet’s serviceName must point at the headless Service that
-  # provides stable DNS for each pod.  If you already create such a Service,
-  # replace the value below with its name.
-  serviceName: "{{ include "sd-comfyui.fullname" . }}-headless"
+  serviceName: "{{ include "sd-comfyui.fullname" . }}"
 
   # Keep the same replica count logic as the original Deployment.
   {{- if not .Values.autoscaling.enabled }}
