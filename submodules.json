@@ -1,7 +1,7 @@
 {
   "comfyui": {
     "url": "https://github.com/comfyanonymous/ComfyUI.git",
-    "tag": "v0.26.2"
+    "tag": "v0.27.0"
   },
   "comfyui-manager": {
     "url": "https://github.com/Comfy-Org/ComfyUI-Manager.git",
